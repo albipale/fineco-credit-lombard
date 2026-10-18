@@ -1,0 +1,338 @@
+```html
+<!DOCTYPE html>
+<html lang="it" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fineco Credit Lombard - Calcolatore Costo & Leverage</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            fineco: {
+              dark: '#031a38',
+              navy: '#0b2b52',
+              blue: '#0052cc',
+              lightBlue: '#1d70f5',
+              accent: '#ff9900',
+              bg: '#0f172a',
+              card: '#1e293b'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Custom scrollbar and glassmorphism styling */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+    .glass-card {
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glass-card-sm {
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      background: #1d70f5;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col antialiased selection:bg-blue-600 selection:text-white">
+
+  <!-- Header -->
+  <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-700 to-indigo-500 flex items-center justify-center font-bold text-white shadow-lg shadow-blue-500/20 text-lg">
+          €
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <h1 class="text-lg font-bold tracking-tight text-white">Fineco Credit Lombard</h1>
+            <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30">Simulator</span>
+          </div>
+          <p class="text-xs text-slate-400">Calcolatore Costi Effettivi, TAN & Rendimento Investment Leverage</p>
+        </div>
+      </div>
+      
+      <div class="flex items-center space-x-3 text-xs text-slate-400">
+        <div class="hidden sm:flex items-center space-x-1.5 bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700/50">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>Euribor 3M Riferimento: <strong class="text-white" id="euribor-badge-val">2.64%</strong></span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+    <!-- Information / Highlights Banner -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="glass-card p-4 rounded-xl flex items-start space-x-3">
+        <div class="p-2 rounded-lg bg-blue-500/10 text-blue-400 mt-0.5">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        </div>
+        <div>
+          <h2 class="text-sm font-semibold text-slate-200">Base di Calcolo 360 Giorni</h2>
+          <p class="text-xs text-slate-400 mt-0.5">Fineco applica la convenzione Money Market (360 giorni anno) sugli interessi giornalieri del Credit Lombard.</p>
+        </div>
+      </div>
+
+      <div class="glass-card p-4 rounded-xl flex items-start space-x-3">
+        <div class="p-2 rounded-lg bg-emerald-500/10 text-emerald-400 mt-0.5">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        </div>
+        <div>
+          <h2 class="text-sm font-semibold text-slate-200">Costo di Mantenimento zero (€0)</h2>
+          <p class="text-xs text-slate-400 mt-0.5">Nessuna commissione di affidamento o su accordato non utilizzato. Paghi solo per quanto prelevi e per i giorni effettivi.</p>
+        </div>
+      </div>
+
+      <div class="glass-card p-4 rounded-xl flex items-start space-x-3">
+        <div class="p-2 rounded-lg bg-amber-500/10 text-amber-400 mt-0.5">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+        </div>
+        <div>
+          <h2 class="text-sm font-semibold text-slate-200">Addebito Annuale (Marzo)</h2>
+          <p class="text-xs text-slate-400 mt-0.5">Gli interessi maturati nell'anno civile precedente vengono addebitati una volta all'anno sul conto corrente nel mese di Marzo.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      
+      <!-- LEFT COLUMN: INPUT CONTROLS (5 cols) -->
+      <section class="lg:col-span-5 space-y-5">
+        <div class="glass-card p-5 rounded-2xl border border-slate-800 space-y-5">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <h2 class="font-bold text-base text-slate-100 flex items-center gap-2">
+              <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+              Parametri del Prestito
+            </h2>
+            <button id="reset-btn" class="text-xs text-slate-400 hover:text-white transition-colors underline">Ripristina Predefiniti</button>
+          </div>
+
+          <!-- 1. Utilized Amount -->
+          <div class="space-y-2">
+            <div class="flex justify-between items-center">
+              <label for="amount-input" class="text-xs font-semibold text-slate-300">Importo Utilizzato / Prelevato (€)</label>
+              <span id="amount-display" class="text-base font-bold text-blue-400">€ 50.000</span>
+            </div>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 font-medium">€</span>
+              <input type="number" id="amount-input" value="50000" min="1000" step="1000" max="2000000"
+                class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-8 pr-4 py-2 text-slate-100 focus:outline-none focus:border-blue-500 font-semibold text-sm">
+            </div>
+            <input type="range" id="amount-range" min="5000" max="500000" step="5000" value="50000"
+              class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer">
+            <div class="flex justify-between text-[10px] text-slate-500 px-0.5">
+              <span>€ 5.000</span>
+              <span>€ 250.000</span>
+              <span>€ 500.000+</span>
+            </div>
+          </div>
+
+          <!-- 2. Client Tier & Spread -->
+          <div class="space-y-2">
+            <label class="text-xs font-semibold text-slate-300">Profilo Cliente / Tier Fineco (Spread)</label>
+            <div class="grid grid-cols-3 gap-2">
+              <button type="button" data-spread="1.00" data-tier="standard" class="tier-btn bg-blue-600/20 border-2 border-blue-500 text-blue-300 rounded-xl p-2.5 text-left transition-all hover:bg-slate-800 focus:outline-none">
+                <div class="text-xs font-bold">Standard</div>
+                <div class="text-[11px] text-slate-400 mt-0.5">Spread +1,00%</div>
+              </button>
+              <button type="button" data-spread="0.50" data-tier="private" class="tier-btn bg-slate-900 border border-slate-700 text-slate-300 rounded-xl p-2.5 text-left transition-all hover:bg-slate-800 focus:outline-none">
+                <div class="text-xs font-bold">Private / Apex</div>
+                <div class="text-[11px] text-slate-400 mt-0.5">Spread +0,50%</div>
+              </button>
+              <button type="button" data-spread="0.10" data-tier="promo" class="tier-btn bg-slate-900 border border-slate-700 text-slate-300 rounded-xl p-2.5 text-left transition-all hover:bg-slate-800 focus:outline-none">
+                <div class="text-xs font-bold">Promo / Top</div>
+                <div class="text-[11px] text-slate-400 mt-0.5">Spread +0,10%</div>
+              </button>
+            </div>
+
+            <!-- Custom Spread Override -->
+            <div class="pt-2 flex items-center justify-between gap-3">
+              <label for="custom-spread-input" class="text-xs text-slate-400 shrink-0">Spread Personalizzato (%):</label>
+              <div class="flex items-center space-x-2">
+                <input type="number" id="custom-spread-input" value="1.00" step="0.05" min="0" max="5" 
+                  class="w-24 bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-slate-100 text-right text-xs font-semibold focus:outline-none focus:border-blue-500">
+                <span class="text-xs text-slate-400">%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. Euribor 3M -->
+          <div class="space-y-2">
+            <div class="flex justify-between items-center">
+              <label for="euribor-input" class="text-xs font-semibold text-slate-300">Tasso Euribor 3 Mesi (% base 360)</label>
+              <span id="euribor-display" class="text-xs font-bold text-blue-400">2.64%</span>
+            </div>
+            
+            <!-- Quick Presets -->
+            <div class="flex items-center gap-1.5 mb-1.5">
+              <span class="text-[11px] text-slate-400 mr-1">Preset:</span>
+              <button type="button" class="euribor-preset-btn text-[11px] px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700" data-val="1.50">1,50%</button>
+              <button type="button" class="euribor-preset-btn text-[11px] px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700" data-val="2.00">2,00%</button>
+              <button type="button" class="euribor-preset-btn text-[11px] px-2 py-1 rounded bg-blue-600/30 text-blue-300 border border-blue-500 font-medium" data-val="2.64">2,64% (Attuale)</button>
+              <button type="button" class="euribor-preset-btn text-[11px] px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700" data-val="3.50">3,50%</button>
+            </div>
+
+            <div class="relative">
+              <input type="number" id="euribor-input" value="2.64" step="0.01" min="-1" max="10"
+                class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-slate-100 font-semibold text-sm focus:outline-none focus:border-blue-500">
+              <span class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 font-medium text-xs">%</span>
+            </div>
+          </div>
+
+          <!-- 4. Duration Mode -->
+          <div class="space-y-3 pt-1 border-t border-slate-800">
+            <label class="text-xs font-semibold text-slate-300 block">Modalità Durata Prestito</label>
+            
+            <div class="grid grid-cols-3 gap-1.5 p-1 bg-slate-900 rounded-xl border border-slate-800 text-xs">
+              <button type="button" id="mode-days-btn" class="duration-mode-btn py-1.5 px-2 rounded-lg text-center font-medium bg-blue-600 text-white transition-all">Giorni</button>
+              <button type="button" id="mode-months-btn" class="duration-mode-btn py-1.5 px-2 rounded-lg text-center font-medium text-slate-400 hover:text-slate-200 transition-all">Mesi</button>
+              <button type="button" id="mode-dates-btn" class="duration-mode-btn py-1.5 px-2 rounded-lg text-center font-medium text-slate-400 hover:text-slate-200 transition-all">Date Esatte</button>
+            </div>
+
+            <!-- Mode Controls Container -->
+            <div id="duration-controls-container" class="space-y-2">
+              
+              <!-- Days Input -->
+              <div id="days-control-group" class="space-y-1.5">
+                <div class="flex justify-between items-center text-xs">
+                  <span class="text-slate-400">Numero di Giorni:</span>
+                  <span id="days-display-val" class="font-bold text-slate-200">90 Giorni</span>
+                </div>
+                <input type="number" id="days-input" value="90" min="1" max="3650" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-slate-100 text-sm font-semibold focus:outline-none focus:border-blue-500">
+              </div>
+
+              <!-- Months Input (Hidden by default) -->
+              <div id="months-control-group" class="hidden space-y-1.5">
+                <div class="flex justify-between items-center text-xs">
+                  <span class="text-slate-400">Numero di Mesi:</span>
+                  <span id="months-display-val" class="font-bold text-slate-200">6 Mesi (~180 gg)</span>
+                </div>
+                <input type="number" id="months-input" value="6" min="1" max="120" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-slate-100 text-sm font-semibold focus:outline-none focus:border-blue-500">
+              </div>
+
+              <!-- Dates Range Picker (Hidden by default) -->
+              <div id="dates-control-group" class="hidden space-y-2">
+                <div class="grid grid-cols-2 gap-2">
+                  <div>
+                    <label class="text-[11px] text-slate-400 block mb-1">Data Inizio</label>
+                    <input type="date" id="start-date-input" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-blue-500">
+                  </div>
+                  <div>
+                    <label class="text-[11px] text-slate-400 block mb-1">Data Fine</label>
+                    <input type="date" id="end-date-input" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-blue-500">
+                  </div>
+                </div>
+                <div class="text-right text-xs text-blue-400 font-medium" id="computed-dates-days">
+                  Totale: 90 giorni effettivi
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- 5. Investment Leverage / Opportunity Cost Optional Input -->
+          <div class="space-y-2 pt-2 border-t border-slate-800">
+            <div class="flex items-center justify-between">
+              <label for="invest-return-input" class="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                Rendimento Atteso Investimento (%)
+              </label>
+              <span class="text-[10px] text-slate-400 bg-slate-800 px-1.5 py-0.5 rounded">Opzionale</span>
+            </div>
+            <p class="text-[11px] text-slate-400">Inserisci il rendimento lordo annuo stimato dei titoli acquistati a leva con la liquidità ottenuta.</p>
+            <div class="relative">
+              <input type="number" id="invest-return-input" value="6.00" step="0.25" min="0" max="50"
+                class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-slate-100 font-semibold text-sm focus:outline-none focus:border-emerald-500">
+              <span class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 text-xs">% Lordo p.a.</span>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- RIGHT COLUMN: RESULTS & METRICS & CHARTS (7 cols) -->
+      <section class="lg:col-span-7 space-y-5">
+
+        <!-- KPI Metric Cards Grid -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          
+          <!-- Card 1: Total Interest Cost -->
+          <div class="glass-card p-4 rounded-2xl border-l-4 border-l-blue-500">
+            <p class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Interessi Totali</p>
+            <p id="kpi-total-interest" class="text-lg sm:text-xl font-bold text-white mt-1">€ 0</p>
+            <p id="kpi-interest-percent" class="text-[10px] text-blue-400 font-medium mt-1">0.00% del capitale</p>
+          </div>
+
+          <!-- Card 2: TAN -->
+          <div class="glass-card p-4 rounded-2xl border-l-4 border-l-indigo-500">
+            <p class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">TAN Effettivo</p>
+            <p id="kpi-tan" class="text-lg sm:text-xl font-bold text-indigo-300 mt-1">3.64%</p>
+            <p id="kpi-tan-breakdown" class="text-[10px] text-slate-400 mt-1">Euribor + Spread</p>
+          </div>
+
+          <!-- Card 3: Monthly Cost -->
+          <div class="glass-card p-4 rounded-2xl border-l-4 border-l-sky-500">
+            <p class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Costo Mensile Media</p>
+            <p id="kpi-monthly-cost" class="text-lg sm:text-xl font-bold text-slate-100 mt-1">€ 0</p>
+            <p id="kpi-daily-cost" class="text-[10px] text-sky-400 font-medium mt-1">€ 0/giorno</p>
+          </div>
+
+          <!-- Card 4: Investment Arbitrage Gain -->
+          <div id="kpi-arbitrage-card" class="glass-card p-4 rounded-2xl border-l-4 border-l-emerald-500">
+            <p class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Profitto Netto Leva</p>
+            <p id="kpi-net-profit" class="text-lg sm:text-xl font-bold text-emerald-400 mt-1">€ 0</p>
+            <p id="kpi-net-spread" class="text-[10px] text-emerald-400/80 font-medium mt-1">Spread Netto: +0.00%</p>
+          </div>
+
+        </div>
+
+        <!-- Comparative Tier Analysis Table -->
+        <div class="glass-card p-5 rounded-2xl space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
+              <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2z"></path></svg>
+              Confronto Profili Fineco
+            </h3>
+            <span class="text-[11px] text-slate-400">Valori calcolati sulla durata selezionata</span>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs text-slate-300">
+              <thead class="bg-slate-900/80 text-slate-400 font-semibold border-b border-slate-800">
+                <tr>
+                  <th class="py-2.5 px-3">Profilo / Scaglione</th>
+        
